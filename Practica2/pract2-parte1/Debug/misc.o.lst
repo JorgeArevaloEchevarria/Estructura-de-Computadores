@@ -1,0 +1,52 @@
+   1              	# 1 "../misc.asm"
+   1              	/*-----------------------------------------------------------------
+   0              	
+   0              	
+   0              	
+   2              	**
+   3              	**  Fichero:
+   4              	**    misc.asm  10/6/2014
+   5              	**
+   6              	**    Estructura de Computadores
+   7              	**    Dpto. de Arquitectura de Computadores y Automática
+   8              	**    Facultad de Informática. Universidad Complutense de Madrid
+   9              	**
+  10              	**  Propósito:
+  11              	**    Contiene las implementaciones de las funciones en ensamblador
+  12              	**    usadas por el programa principal
+  13              	**
+  14              	**  Notas de diseño:
+  15              	**
+  16              	**---------------------------------------------------------------*/
+  17              	
+  18              		.global DoUndef
+  19              	    .global DoSWI
+  20              	    .global DoDabort
+  21              	
+  22              	.text
+  23              	
+  24              	DoSWI:
+  25 0000 000000EF 		swi #0
+  26 0004 0EF0A0E1 		mov pc,lr
+  27              	
+  28              	DoUndef:
+  29 0008 100000E6 		.word 0xE6000010
+  30 000c 0EF0A0E1 		mov pc,lr
+  31              	
+  32              	DoDabort:
+  33 0010 04009FE5 		ldr r0,=0x0a333333
+  34 0014 000080E5 		str r0,[r0]
+  35 0018 0EF0A0E1 		mov pc,lr
+  36              	
+  37 001c 3333330A 		.end
+DEFINED SYMBOLS
+         ../misc.asm:28     .text:00000008 DoUndef
+         ../misc.asm:24     .text:00000000 DoSWI
+         ../misc.asm:32     .text:00000010 DoDabort
+         ../misc.asm:25     .text:00000000 $a
+         ../misc.asm:29     .text:00000008 $d
+         ../misc.asm:30     .text:0000000c $a
+         ../misc.asm:37     .text:0000001c $d
+                   .debug_aranges:0000000c $d
+
+NO UNDEFINED SYMBOLS

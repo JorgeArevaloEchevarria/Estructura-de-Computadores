@@ -1,0 +1,495 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"timer.c"
+  21              	.Ltext0:
+  22              		.file 1 "../timer.c"
+ 1798              		.align	2
+ 1799              	symbol:
+ 1800 0000 00000000 		.space	4
+ 1801              		.align	2
+ 1802              	timer_stat:
+ 1803 0004 00000000 		.space	4
+ 1804              		.text
+ 1805              		.align	2
+ 1807              	timer_ISR:
+ 1808              	.LFB0:
+   1:../timer.c    **** /*-------------------------------------------------------------------
+   2:../timer.c    **** **
+   3:../timer.c    **** **  Fichero:
+   4:../timer.c    **** **    timer.c  10/6/2014
+   5:../timer.c    **** **
+   6:../timer.c    **** **    Estructura de Computadores
+   7:../timer.c    **** **    Dpto. de Arquitectura de Computadores y Automática
+   8:../timer.c    **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../timer.c    **** **
+  10:../timer.c    **** **  Propósito:
+  11:../timer.c    **** **    Contiene las implementaciones de las funciones
+  12:../timer.c    **** **    para la gestión del timer 0 del chip S3C44BOX
+  13:../timer.c    **** **
+  14:../timer.c    **** **  Notas de diseño:
+  15:../timer.c    **** **
+  16:../timer.c    **** **-----------------------------------------------------------------*/
+  17:../timer.c    **** 
+  18:../timer.c    **** #include "44b.h"
+  19:../timer.c    **** #include "leds.h"
+  20:../timer.c    **** #include "D8Led.h"
+  21:../timer.c    **** #include "timer.h"
+  22:../timer.c    **** 
+  23:../timer.c    **** #define MCLK 64000000
+  24:../timer.c    **** 
+  25:../timer.c    **** static int symbol = 0;     /* variable de estado del símbolo del contador software */
+  26:../timer.c    **** static int timer_stat = 0; /* variable de estado del timer (1 activo, 0 inactivo)   */
+  27:../timer.c    **** 
+  28:../timer.c    **** static void timer_ISR(void) __attribute__ ((interrupt ("IRQ")));
+  29:../timer.c    **** 
+  30:../timer.c    **** /*
+  31:../timer.c    ****  * Debe incremetar el valor mostrado por el display de 8
+  32:../timer.c    ****  * segmentos (symbol) y mostrar el nuevo valor por el display.
+  33:../timer.c    ****  * Cuando la cuenta llegue a 9 se quedará en 9.
+  34:../timer.c    ****  */
+  35:../timer.c    **** static void timer_ISR(void){
+ 1809              		.loc 1 35 0
+ 1810              		.cfi_startproc
+ 1811              		@ Interrupt Service Routine.
+ 1812              		@ args = 0, pretend = 0, frame = 0
+ 1813              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1814 0000 04C02DE5 		str	ip, [sp, #-4]!
+ 1815 0004 0DC0A0E1 		mov	ip, sp
+ 1816              	.LCFI0:
+ 1817              		.cfi_def_cfa_register 12
+ 1818 0008 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 1819 000c 04B04CE2 		sub	fp, ip, #4
+ 1820              		.cfi_offset 14, -8
+ 1821              		.cfi_offset 13, -12
+ 1822              		.cfi_offset 11, -16
+ 1823              		.cfi_offset 3, -20
+ 1824              		.cfi_offset 2, -24
+ 1825              		.cfi_offset 1, -28
+ 1826              		.cfi_offset 0, -32
+ 1827              	.LCFI1:
+ 1828              		.cfi_def_cfa 11, 4
+  36:../timer.c    **** 
+  37:../timer.c    **** 	if (symbol < 9) {
+ 1829              		.loc 1 37 0
+ 1830 0010 54309FE5 		ldr	r3, .L4
+ 1831 0014 003093E5 		ldr	r3, [r3, #0]
+ 1832 0018 080053E3 		cmp	r3, #8
+ 1833 001c 0A0000CA 		bgt	.L2
+  38:../timer.c    **** 		symbol++;
+ 1834              		.loc 1 38 0
+ 1835 0020 44309FE5 		ldr	r3, .L4
+ 1836 0024 003093E5 		ldr	r3, [r3, #0]
+ 1837 0028 012083E2 		add	r2, r3, #1
+ 1838 002c 38309FE5 		ldr	r3, .L4
+ 1839 0030 002083E5 		str	r2, [r3, #0]
+  39:../timer.c    **** 		leds_switch();
+ 1840              		.loc 1 39 0
+ 1841 0034 FEFFFFEB 		bl	leds_switch
+  40:../timer.c    **** 		D8Led_digit(symbol);
+ 1842              		.loc 1 40 0
+ 1843 0038 2C309FE5 		ldr	r3, .L4
+ 1844 003c 003093E5 		ldr	r3, [r3, #0]
+ 1845 0040 0300A0E1 		mov	r0, r3
+ 1846 0044 FEFFFFEB 		bl	D8Led_digit
+ 1847 0048 000000EA 		b	.L3
+ 1848              	.L2:
+  41:../timer.c    **** 	} else {
+  42:../timer.c    **** 		timer_stop();
+ 1849              		.loc 1 42 0
+ 1850 004c FEFFFFEB 		bl	timer_stop
+ 1851              	.L3:
+  43:../timer.c    **** 	}
+  44:../timer.c    **** 	rI_ISPC = BIT_TIMER2;
+ 1852              		.loc 1 44 0
+ 1853 0050 18309FE5 		ldr	r3, .L4+4
+ 1854 0054 022BA0E3 		mov	r2, #2048
+ 1855 0058 002083E5 		str	r2, [r3, #0]
+  45:../timer.c    **** }
+ 1856              		.loc 1 45 0
+ 1857 005c 1CD04BE2 		sub	sp, fp, #28
+ 1858 0060 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 1859 0064 04C09DE4 		ldmfd	sp!, {ip}
+ 1860 0068 04F05EE2 		subs	pc, lr, #4
+ 1861              	.L5:
+ 1862              		.align	2
+ 1863              	.L4:
+ 1864 006c 00000000 		.word	symbol
+ 1865 0070 2400E001 		.word	31457316
+ 1866              		.cfi_endproc
+ 1867              	.LFE0:
+ 1869              		.align	2
+ 1870              		.global	timer_start
+ 1872              	timer_start:
+ 1873              	.LFB1:
+  46:../timer.c    **** 
+  47:../timer.c    **** /*
+  48:../timer.c    ****  * Debe arrancar el timer2 para que genere una interrupción a los dos segundos
+  49:../timer.c    ****  * y en modo autoreload: valor de cuenta 62500, con pre-escalado y divisor
+  50:../timer.c    ****  * configurados en timer_init (no hace falta volver a configurarlo aquí). 
+  51:../timer.c    ****  * Para arrancar el timer:
+  52:../timer.c    ****  * 	- activar bit de manual update
+  53:../timer.c    ****  * 	- descativar bit de manual update
+  54:../timer.c    ****  * 	- activar bits de auto-reload y start
+  55:../timer.c    ****  *
+  56:../timer.c    ****  * 	Los dos últimos pasos se pueden fusionar en una única instrucción C.
+  57:../timer.c    ****  *
+  58:../timer.c    ****  * 	Antes de arrancar deberíamos borrar posibles interrupciones pendientes y
+  59:../timer.c    ****  * 	desenmascarar.
+  60:../timer.c    ****  *
+  61:../timer.c    ****  * 	Los comentarios dan una idea de lo que hay que ir haciendo.
+  62:../timer.c    ****  */
+  63:../timer.c    **** 
+  64:../timer.c    **** void timer_start(void){
+ 1874              		.loc 1 64 0
+ 1875              		.cfi_startproc
+ 1876              		@ Function supports interworking.
+ 1877              		@ args = 0, pretend = 0, frame = 0
+ 1878              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1879 0074 0DC0A0E1 		mov	ip, sp
+ 1880              	.LCFI2:
+ 1881              		.cfi_def_cfa_register 12
+ 1882 0078 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1883 007c 04B04CE2 		sub	fp, ip, #4
+ 1884              		.cfi_offset 14, -8
+ 1885              		.cfi_offset 13, -12
+ 1886              		.cfi_offset 11, -16
+ 1887              	.LCFI3:
+ 1888              		.cfi_def_cfa 11, 4
+  65:../timer.c    ****     /* manual update */
+  66:../timer.c    **** 	rTCON = 0x2000;
+ 1889              		.loc 1 66 0
+ 1890 0080 58309FE5 		ldr	r3, .L7
+ 1891 0084 022AA0E3 		mov	r2, #8192
+ 1892 0088 002083E5 		str	r2, [r3, #0]
+  67:../timer.c    **** 	/* Se borra el bit de interrupción pendiente del TIMER2 */
+  68:../timer.c    **** 	rI_ISPC = BIT_TIMER2;
+ 1893              		.loc 1 68 0
+ 1894 008c 50309FE5 		ldr	r3, .L7+4
+ 1895 0090 022BA0E3 		mov	r2, #2048
+ 1896 0094 002083E5 		str	r2, [r3, #0]
+  69:../timer.c    **** 	/* not manual update, start and auto-reload*/
+  70:../timer.c    **** 	rTCON = 0x9000;
+ 1897              		.loc 1 70 0
+ 1898 0098 40309FE5 		ldr	r3, .L7
+ 1899 009c 092AA0E3 		mov	r2, #36864
+ 1900 00a0 002083E5 		str	r2, [r3, #0]
+  71:../timer.c    **** 	/* Se borra el bit de interrupción pendiente del TIMER2 */
+  72:../timer.c    **** 	rI_ISPC = BIT_TIMER2;
+ 1901              		.loc 1 72 0
+ 1902 00a4 38309FE5 		ldr	r3, .L7+4
+ 1903 00a8 022BA0E3 		mov	r2, #2048
+ 1904 00ac 002083E5 		str	r2, [r3, #0]
+  73:../timer.c    **** 	
+  74:../timer.c    **** 	timer_stat = 1;
+ 1905              		.loc 1 74 0
+ 1906 00b0 30309FE5 		ldr	r3, .L7+8
+ 1907 00b4 0120A0E3 		mov	r2, #1
+ 1908 00b8 002083E5 		str	r2, [r3, #0]
+  75:../timer.c    **** 	/* Desenmascara la linea del timer 2 y el bit global */
+  76:../timer.c    **** 	rINTMSK &= ~(BIT_GLOBAL | BIT_TIMER2);
+ 1909              		.loc 1 76 0
+ 1910 00bc 28209FE5 		ldr	r2, .L7+12
+ 1911 00c0 24309FE5 		ldr	r3, .L7+12
+ 1912 00c4 003093E5 		ldr	r3, [r3, #0]
+ 1913 00c8 0133C3E3 		bic	r3, r3, #67108864
+ 1914 00cc 023BC3E3 		bic	r3, r3, #2048
+ 1915 00d0 003082E5 		str	r3, [r2, #0]
+  77:../timer.c    **** }
+ 1916              		.loc 1 77 0
+ 1917 00d4 0CD04BE2 		sub	sp, fp, #12
+ 1918 00d8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1919 00dc 1EFF2FE1 		bx	lr
+ 1920              	.L8:
+ 1921              		.align	2
+ 1922              	.L7:
+ 1923 00e0 0800D501 		.word	30736392
+ 1924 00e4 2400E001 		.word	31457316
+ 1925 00e8 04000000 		.word	timer_stat
+ 1926 00ec 0C00E001 		.word	31457292
+ 1927              		.cfi_endproc
+ 1928              	.LFE1:
+ 1930              		.align	2
+ 1931              		.global	timer_stop
+ 1933              	timer_stop:
+ 1934              	.LFB2:
+  78:../timer.c    **** 
+  79:../timer.c    **** /*
+  80:../timer.c    ****  * Debe parar el timer 2 y enmascarar su línea de interrupción */
+  81:../timer.c    **** void timer_stop(void)
+  82:../timer.c    **** {
+ 1935              		.loc 1 82 0
+ 1936              		.cfi_startproc
+ 1937              		@ Function supports interworking.
+ 1938              		@ args = 0, pretend = 0, frame = 0
+ 1939              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1940 00f0 0DC0A0E1 		mov	ip, sp
+ 1941              	.LCFI4:
+ 1942              		.cfi_def_cfa_register 12
+ 1943 00f4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1944 00f8 04B04CE2 		sub	fp, ip, #4
+ 1945              		.cfi_offset 14, -8
+ 1946              		.cfi_offset 13, -12
+ 1947              		.cfi_offset 11, -16
+ 1948              	.LCFI5:
+ 1949              		.cfi_def_cfa 11, 4
+  83:../timer.c    **** 	// Implementar
+  84:../timer.c    **** 	rTCON = ~(1 << 12); // bit 0
+ 1950              		.loc 1 84 0
+ 1951 00fc 30309FE5 		ldr	r3, .L10
+ 1952 0100 012AE0E3 		mvn	r2, #4096
+ 1953 0104 002083E5 		str	r2, [r3, #0]
+  85:../timer.c    **** 	rINTMSK |= BIT_TIMER2; // enmascara timer2
+ 1954              		.loc 1 85 0
+ 1955 0108 28309FE5 		ldr	r3, .L10+4
+ 1956 010c 24209FE5 		ldr	r2, .L10+4
+ 1957 0110 002092E5 		ldr	r2, [r2, #0]
+ 1958 0114 022B82E3 		orr	r2, r2, #2048
+ 1959 0118 002083E5 		str	r2, [r3, #0]
+  86:../timer.c    **** 
+  87:../timer.c    **** 	timer_stat = 0;
+ 1960              		.loc 1 87 0
+ 1961 011c 18309FE5 		ldr	r3, .L10+8
+ 1962 0120 0020A0E3 		mov	r2, #0
+ 1963 0124 002083E5 		str	r2, [r3, #0]
+  88:../timer.c    **** }
+ 1964              		.loc 1 88 0
+ 1965 0128 0CD04BE2 		sub	sp, fp, #12
+ 1966 012c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1967 0130 1EFF2FE1 		bx	lr
+ 1968              	.L11:
+ 1969              		.align	2
+ 1970              	.L10:
+ 1971 0134 0800D501 		.word	30736392
+ 1972 0138 0C00E001 		.word	31457292
+ 1973 013c 04000000 		.word	timer_stat
+ 1974              		.cfi_endproc
+ 1975              	.LFE2:
+ 1977              		.align	2
+ 1978              		.global	timer_switch
+ 1980              	timer_switch:
+ 1981              	.LFB3:
+  89:../timer.c    **** 
+  90:../timer.c    **** void timer_switch(void) {
+ 1982              		.loc 1 90 0
+ 1983              		.cfi_startproc
+ 1984              		@ Function supports interworking.
+ 1985              		@ args = 0, pretend = 0, frame = 0
+ 1986              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1987 0140 0DC0A0E1 		mov	ip, sp
+ 1988              	.LCFI6:
+ 1989              		.cfi_def_cfa_register 12
+ 1990 0144 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1991 0148 04B04CE2 		sub	fp, ip, #4
+ 1992              		.cfi_offset 14, -8
+ 1993              		.cfi_offset 13, -12
+ 1994              		.cfi_offset 11, -16
+ 1995              	.LCFI7:
+ 1996              		.cfi_def_cfa 11, 4
+  91:../timer.c    **** 	if (timer_stat) {
+ 1997              		.loc 1 91 0
+ 1998 014c 20309FE5 		ldr	r3, .L15
+ 1999 0150 003093E5 		ldr	r3, [r3, #0]
+ 2000 0154 000053E3 		cmp	r3, #0
+ 2001 0158 0100000A 		beq	.L13
+  92:../timer.c    **** 		timer_stop();
+ 2002              		.loc 1 92 0
+ 2003 015c FEFFFFEB 		bl	timer_stop
+ 2004 0160 000000EA 		b	.L12
+ 2005              	.L13:
+  93:../timer.c    **** 	} else {
+  94:../timer.c    **** 		timer_start();
+ 2006              		.loc 1 94 0
+ 2007 0164 FEFFFFEB 		bl	timer_start
+ 2008              	.L12:
+  95:../timer.c    **** 	}
+  96:../timer.c    **** }
+ 2009              		.loc 1 96 0
+ 2010 0168 0CD04BE2 		sub	sp, fp, #12
+ 2011 016c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2012 0170 1EFF2FE1 		bx	lr
+ 2013              	.L16:
+ 2014              		.align	2
+ 2015              	.L15:
+ 2016 0174 04000000 		.word	timer_stat
+ 2017              		.cfi_endproc
+ 2018              	.LFE3:
+ 2020              		.align	2
+ 2021              		.global	timer_clear
+ 2023              	timer_clear:
+ 2024              	.LFB4:
+  97:../timer.c    **** 
+  98:../timer.c    **** void timer_clear(void) {
+ 2025              		.loc 1 98 0
+ 2026              		.cfi_startproc
+ 2027              		@ Function supports interworking.
+ 2028              		@ args = 0, pretend = 0, frame = 0
+ 2029              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2030 0178 0DC0A0E1 		mov	ip, sp
+ 2031              	.LCFI8:
+ 2032              		.cfi_def_cfa_register 12
+ 2033 017c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2034 0180 04B04CE2 		sub	fp, ip, #4
+ 2035              		.cfi_offset 14, -8
+ 2036              		.cfi_offset 13, -12
+ 2037              		.cfi_offset 11, -16
+ 2038              	.LCFI9:
+ 2039              		.cfi_def_cfa 11, 4
+  99:../timer.c    **** 	timer_stop();
+ 2040              		.loc 1 99 0
+ 2041 0184 FEFFFFEB 		bl	timer_stop
+ 100:../timer.c    **** 	symbol = 0;
+ 2042              		.loc 1 100 0
+ 2043 0188 20309FE5 		ldr	r3, .L18
+ 2044 018c 0020A0E3 		mov	r2, #0
+ 2045 0190 002083E5 		str	r2, [r3, #0]
+ 101:../timer.c    **** 	D8Led_digit(symbol); 		     
+ 2046              		.loc 1 101 0
+ 2047 0194 14309FE5 		ldr	r3, .L18
+ 2048 0198 003093E5 		ldr	r3, [r3, #0]
+ 2049 019c 0300A0E1 		mov	r0, r3
+ 2050 01a0 FEFFFFEB 		bl	D8Led_digit
+ 102:../timer.c    **** }
+ 2051              		.loc 1 102 0
+ 2052 01a4 0CD04BE2 		sub	sp, fp, #12
+ 2053 01a8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2054 01ac 1EFF2FE1 		bx	lr
+ 2055              	.L19:
+ 2056              		.align	2
+ 2057              	.L18:
+ 2058 01b0 00000000 		.word	symbol
+ 2059              		.cfi_endproc
+ 2060              	.LFE4:
+ 2062              		.align	2
+ 2063              		.global	timer_init
+ 2065              	timer_init:
+ 2066              	.LFB5:
+ 103:../timer.c    **** 
+ 104:../timer.c    **** /* 
+ 105:../timer.c    ****  * Debe configurar el timer 2 para que produzca interrupciones cada 
+ 106:../timer.c    ****  * 2 segundos: preescalado 255 y divisor 8.
+ 107:../timer.c    ****  * Al final se invocará a timer_start para que se inicie. Los comentarios
+ 108:../timer.c    ****  * dan una idea de lo que hay que ir haciendo.
+ 109:../timer.c    ****  */
+ 110:../timer.c    **** void timer_init(void){
+ 2067              		.loc 1 110 0
+ 2068              		.cfi_startproc
+ 2069              		@ Function supports interworking.
+ 2070              		@ args = 0, pretend = 0, frame = 0
+ 2071              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2072 01b4 0DC0A0E1 		mov	ip, sp
+ 2073              	.LCFI10:
+ 2074              		.cfi_def_cfa_register 12
+ 2075 01b8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2076 01bc 04B04CE2 		sub	fp, ip, #4
+ 2077              		.cfi_offset 14, -8
+ 2078              		.cfi_offset 13, -12
+ 2079              		.cfi_offset 11, -16
+ 2080              	.LCFI11:
+ 2081              		.cfi_def_cfa 11, 4
+ 111:../timer.c    **** 	// Implementar
+ 112:../timer.c    **** 	
+ 113:../timer.c    **** 	// Establecer la rutina de servicio para TIMER2
+ 114:../timer.c    **** 
+ 115:../timer.c    ****    /* f = MCLK / ((P+1) * D)
+ 116:../timer.c    ****     * para una interrupción cada 2 segundos: N * 1/f = 2 con N <= 65535  
+ 117:../timer.c    **** 	* N * ((P+1)*D) / MCLK = 2 => P = 2 * MCLK / (N*D) - 1
+ 118:../timer.c    **** 	* Tomamos N como el mayor divisor de 2*CLK/D => para D = 8 y MCLK = 64MHz, N = 65200
+ 119:../timer.c    ****     * y P = 2*64000000/(62500*8) - 1 = 255, que cabe justo en los 8 bits de pre-escalado 
+ 120:../timer.c    ****     */
+ 121:../timer.c    **** 	/* divisor 1/8 */
+ 122:../timer.c    **** 
+ 123:../timer.c    **** 	/* pre-escalado 255 */
+ 124:../timer.c    **** 	
+ 125:../timer.c    **** 	/* Dejar el timer parado */
+ 126:../timer.c    **** 	pISR_TIMER2 = (unsigned) timer_ISR;
+ 2082              		.loc 1 126 0
+ 2083 01c0 50309FE5 		ldr	r3, .L21
+ 2084 01c4 50209FE5 		ldr	r2, .L21+4
+ 2085 01c8 002083E5 		str	r2, [r3, #0]
+ 127:../timer.c    **** 	rTCFG0 = 0X0000FF00;
+ 2086              		.loc 1 127 0
+ 2087 01cc 4C309FE5 		ldr	r3, .L21+8
+ 2088 01d0 FF2CA0E3 		mov	r2, #65280
+ 2089 01d4 002083E5 		str	r2, [r3, #0]
+ 128:../timer.c    **** 	rTCFG1 = 0X0000200;
+ 2090              		.loc 1 128 0
+ 2091 01d8 44309FE5 		ldr	r3, .L21+12
+ 2092 01dc 022CA0E3 		mov	r2, #512
+ 2093 01e0 002083E5 		str	r2, [r3, #0]
+ 129:../timer.c    **** 	rTCNTB2 = 65200;
+ 2094              		.loc 1 129 0
+ 2095 01e4 3C309FE5 		ldr	r3, .L21+16
+ 2096 01e8 3C209FE5 		ldr	r2, .L21+20
+ 2097 01ec 002083E5 		str	r2, [r3, #0]
+ 130:../timer.c    **** 	rTCON = ~(1 << 12);
+ 2098              		.loc 1 130 0
+ 2099 01f0 38309FE5 		ldr	r3, .L21+24
+ 2100 01f4 012AE0E3 		mvn	r2, #4096
+ 2101 01f8 002083E5 		str	r2, [r3, #0]
+ 131:../timer.c    **** 
+ 132:../timer.c    **** 
+ 133:../timer.c    **** 
+ 134:../timer.c    **** 	timer_stat = 0;
+ 2102              		.loc 1 134 0
+ 2103 01fc 30309FE5 		ldr	r3, .L21+28
+ 2104 0200 0020A0E3 		mov	r2, #0
+ 2105 0204 002083E5 		str	r2, [r3, #0]
+ 135:../timer.c    **** 
+ 136:../timer.c    **** 	timer_start();
+ 2106              		.loc 1 136 0
+ 2107 0208 FEFFFFEB 		bl	timer_start
+ 137:../timer.c    **** }
+ 2108              		.loc 1 137 0
+ 2109 020c 0CD04BE2 		sub	sp, fp, #12
+ 2110 0210 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2111 0214 1EFF2FE1 		bx	lr
+ 2112              	.L22:
+ 2113              		.align	2
+ 2114              	.L21:
+ 2115 0218 4CFF7F0C 		.word	209715020
+ 2116 021c 00000000 		.word	timer_ISR
+ 2117 0220 0000D501 		.word	30736384
+ 2118 0224 0400D501 		.word	30736388
+ 2119 0228 2400D501 		.word	30736420
+ 2120 022c B0FE0000 		.word	65200
+ 2121 0230 0800D501 		.word	30736392
+ 2122 0234 04000000 		.word	timer_stat
+ 2123              		.cfi_endproc
+ 2124              	.LFE5:
+ 2126              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 timer.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1798   .bss:00000000 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1799   .bss:00000000 symbol
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1802   .bss:00000004 timer_stat
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1805   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1807   .text:00000000 timer_ISR
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1933   .text:000000f0 timer_stop
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1864   .text:0000006c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1869   .text:00000074 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1872   .text:00000074 timer_start
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1923   .text:000000e0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1930   .text:000000f0 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1971   .text:00000134 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1977   .text:00000140 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:1980   .text:00000140 timer_switch
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:2016   .text:00000174 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:2020   .text:00000178 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:2023   .text:00000178 timer_clear
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:2058   .text:000001b0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:2062   .text:000001b4 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:2065   .text:000001b4 timer_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccyPcWWq.s:2115   .text:00000218 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+leds_switch
+D8Led_digit

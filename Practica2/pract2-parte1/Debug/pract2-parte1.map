@@ -1,0 +1,213 @@
+Archive member included because of file (symbol)
+
+c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+                              ./utils.o (__aeabi_idiv)
+c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+                              c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o) (__aeabi_idiv0)
+
+Allocating common symbols
+Common symbol       size              file
+
+Screen              0x400             ./main.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD ./button.o
+LOAD ./init.o
+LOAD ./leds.o
+LOAD ./main.o
+LOAD ./utils.o
+START GROUP
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libc.a
+END GROUP
+                0x0c100000                . = 0xc100000
+
+.data           0x0c100000       0x2c
+ *(.data)
+ .data          0x0c100000        0x0 ./button.o
+ .data          0x0c100000        0x0 ./init.o
+ .data          0x0c100000        0x0 ./leds.o
+ .data          0x0c100000        0x0 ./main.o
+ .data          0x0c100000        0x4 ./utils.o
+ .data          0x0c100004        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+ .data          0x0c100004        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+ *(.rodata)
+ .rodata        0x0c100004       0x28 ./main.o
+
+.bss            0x0c10002c      0x404
+ *(.bss)
+ .bss           0x0c10002c        0x0 ./button.o
+ .bss           0x0c10002c        0x0 ./init.o
+ .bss           0x0c10002c        0x4 ./leds.o
+ .bss           0x0c100030        0x0 ./main.o
+ .bss           0x0c100030        0x0 ./utils.o
+ .bss           0x0c100030        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+ .bss           0x0c100030        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+ COMMON         0x0c100030      0x400 ./main.o
+                0x0c100030                Screen
+
+.text           0x0c100430      0xa1c
+ *(.text)
+ .text          0x0c100430       0xf0 ./button.o
+                0x0c100430                button_init
+                0x0c1004a8                DoDetecta
+ .text          0x0c100520      0x1e4 ./init.o
+                0x0c100520                start
+                0x0c10068c                DoSWI
+                0x0c100694                DoUndef
+                0x0c10069c                DoDabort
+ .text          0x0c100704      0x2c8 ./leds.o
+                0x0c100704                leds_init
+                0x0c100754                switchLed1
+                0x0c100794                switchLed2
+                0x0c1007d4                led1_on
+                0x0c100814                led1_off
+                0x0c100854                led2_on
+                0x0c100894                led2_off
+                0x0c1008d4                leds_switch
+                0x0c100914                leds_display
+ .text          0x0c1009cc      0x1fc ./main.o
+                0x0c1009cc                write
+                0x0c100a2c                ISR_IRQ
+                0x0c100a60                ISR_Undef
+                0x0c100a94                ISR_SWI
+                0x0c100ac8                ISR_Pabort
+                0x0c100afc                ISR_Dabort
+                0x0c100b30                intcont_init
+                0x0c100b98                main
+ .text          0x0c100bc8      0x138 ./utils.o
+                0x0c100bc8                Delay
+ .text          0x0c100d00      0x148 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+                0x0c100d00                __divsi3
+                0x0c100d00                __aeabi_idiv
+                0x0c100e28                __aeabi_idivmod
+ .text          0x0c100e48        0x4 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+                0x0c100e48                __aeabi_idiv0
+                0x0c100e48                __aeabi_ldiv0
+                0x0c100e4c                PROVIDE (end, .)
+START GROUP
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libg.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libc.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libm.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libnosys.a
+END GROUP
+OUTPUT(pract2-parte1.elf elf32-littlearm)
+
+.glue_7         0x0c100e4c        0x0
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0x0c100e4c        0x0
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x0c100e4c        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x0c100e4c        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.debug_abbrev   0x00000000      0x1fb
+ .debug_abbrev  0x00000000       0x5c ./button.o
+ .debug_abbrev  0x0000005c       0x14 ./init.o
+ .debug_abbrev  0x00000070       0x6b ./leds.o
+ .debug_abbrev  0x000000db       0xbb ./main.o
+ .debug_abbrev  0x00000196       0x65 ./utils.o
+
+.debug_info     0x00000000      0x3c5
+ .debug_info    0x00000000       0x6e ./button.o
+ .debug_info    0x0000006e       0x7f ./init.o
+ .debug_info    0x000000ed      0x112 ./leds.o
+ .debug_info    0x000001ff      0x142 ./main.o
+ .debug_info    0x00000341       0x84 ./utils.o
+
+.debug_line     0x00000000      0x2a6
+ .debug_line    0x00000000       0x85 ./button.o
+ .debug_line    0x00000085       0x9e ./init.o
+ .debug_line    0x00000123       0x7b ./leds.o
+ .debug_line    0x0000019e       0x9d ./main.o
+ .debug_line    0x0000023b       0x6b ./utils.o
+
+.debug_macinfo  0x00000000    0x13937
+ .debug_macinfo
+                0x00000000     0x4e4d ./button.o
+ .debug_macinfo
+                0x00004e4d     0x4e71 ./leds.o
+ .debug_macinfo
+                0x00009cbe     0x4e4d ./main.o
+ .debug_macinfo
+                0x0000eb0b     0x4e2c ./utils.o
+
+.debug_loc      0x00000000      0x370
+ .debug_loc     0x00000000       0x58 ./button.o
+ .debug_loc     0x00000058      0x18c ./leds.o
+ .debug_loc     0x000001e4      0x160 ./main.o
+ .debug_loc     0x00000344       0x2c ./utils.o
+
+.debug_pubnames
+                0x00000000      0x162
+ .debug_pubnames
+                0x00000000       0x30 ./button.o
+ .debug_pubnames
+                0x00000030       0x91 ./leds.o
+ .debug_pubnames
+                0x000000c1       0x85 ./main.o
+ .debug_pubnames
+                0x00000146       0x1c ./utils.o
+
+.debug_aranges  0x00000000       0xa0
+ .debug_aranges
+                0x00000000       0x20 ./button.o
+ .debug_aranges
+                0x00000020       0x20 ./init.o
+ .debug_aranges
+                0x00000040       0x20 ./leds.o
+ .debug_aranges
+                0x00000060       0x20 ./main.o
+ .debug_aranges
+                0x00000080       0x20 ./utils.o
+
+.debug_str      0x00000000      0x1c7
+ .debug_str     0x00000000       0x82 ./button.o
+ .debug_str     0x00000082       0x7e ./leds.o
+                                 0xdb (size before relaxing)
+ .debug_str     0x00000100       0x6b ./main.o
+                                 0xce (size before relaxing)
+ .debug_str     0x0000016b       0x5c ./utils.o
+                                 0x68 (size before relaxing)
+
+.comment        0x00000000       0x2a
+ .comment       0x00000000       0x2a ./button.o
+                                 0x2b (size before relaxing)
+ .comment       0x00000000       0x2b ./leds.o
+ .comment       0x00000000       0x2b ./main.o
+ .comment       0x00000000       0x2b ./utils.o
+
+.ARM.attributes
+                0x00000000       0x30
+ .ARM.attributes
+                0x00000000       0x32 ./button.o
+ .ARM.attributes
+                0x00000032       0x22 ./init.o
+ .ARM.attributes
+                0x00000054       0x32 ./leds.o
+ .ARM.attributes
+                0x00000086       0x32 ./main.o
+ .ARM.attributes
+                0x000000b8       0x32 ./utils.o
+ .ARM.attributes
+                0x000000ea       0x1a c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000104       0x18 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x00000000      0x31c
+ .debug_frame   0x00000000       0x50 ./button.o
+ .debug_frame   0x00000050      0x130 ./leds.o
+ .debug_frame   0x00000180      0x14c ./main.o
+ .debug_frame   0x000002cc       0x30 ./utils.o
+ .debug_frame   0x000002fc       0x20 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)

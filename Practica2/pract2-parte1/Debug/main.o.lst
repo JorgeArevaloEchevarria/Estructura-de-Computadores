@@ -1,0 +1,514 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 1796              		.align	2
+ 1797              		.global	write
+ 1799              	write:
+ 1800              	.LFB0:
+   1:../main.c     **** /*-------------------------------------------------------------------
+   2:../main.c     **** **
+   3:../main.c     **** **  Fichero:
+   4:../main.c     **** **    main.c  10/6/2014
+   5:../main.c     **** **
+   6:../main.c     **** **    Estructura de Computadores
+   7:../main.c     **** **    Dpto. de Arquitectura de Computadores y Automática
+   8:../main.c     **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../main.c     **** **
+  10:../main.c     **** **  Propósito:
+  11:../main.c     **** **    Genera y trata una colección de excepciones/interrupciones
+  12:../main.c     **** **
+  13:../main.c     **** **  Notas de diseño:
+  14:../main.c     **** **
+  15:../main.c     **** **-----------------------------------------------------------------*/
+  16:../main.c     **** 
+  17:../main.c     **** #include "44b.h"
+  18:../main.c     **** #include "leds.h"
+  19:../main.c     **** #include "button.h"
+  20:../main.c     **** #include "utils.h"
+  21:../main.c     **** 
+  22:../main.c     **** char Screen[1024];
+  23:../main.c     **** 
+  24:../main.c     **** extern void DoSWI  (void);
+  25:../main.c     **** extern void DoUndef(void);
+  26:../main.c     **** extern void DoDabort(void);
+  27:../main.c     **** 
+  28:../main.c     **** void write(char* text, char* address);
+  29:../main.c     **** 
+  30:../main.c     **** void ISR_SWI(void) __attribute__ ((interrupt ("SWI")));
+  31:../main.c     **** void ISR_Undef(void) __attribute__ ((interrupt ("UNDEF")));
+  32:../main.c     **** void ISR_Pabort(void) __attribute__ ((interrupt ("ABORT")));
+  33:../main.c     **** void ISR_Dabort(void) __attribute__ ((interrupt ("ABORT")));
+  34:../main.c     **** void ISR_IRQ(void) __attribute__ ((interrupt ("IRQ")));
+  35:../main.c     **** 
+  36:../main.c     **** 
+  37:../main.c     **** void write(char* text, char* address)
+  38:../main.c     **** {
+ 1801              		.loc 1 38 0
+ 1802              		.cfi_startproc
+ 1803              		@ Function supports interworking.
+ 1804              		@ args = 0, pretend = 0, frame = 8
+ 1805              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1806 0000 0DC0A0E1 		mov	ip, sp
+ 1807              	.LCFI0:
+ 1808              		.cfi_def_cfa_register 12
+ 1809 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1810 0008 04B04CE2 		sub	fp, ip, #4
+ 1811              		.cfi_offset 14, -8
+ 1812              		.cfi_offset 13, -12
+ 1813              		.cfi_offset 11, -16
+ 1814              	.LCFI1:
+ 1815              		.cfi_def_cfa 11, 4
+ 1816 000c 08D04DE2 		sub	sp, sp, #8
+ 1817 0010 10000BE5 		str	r0, [fp, #-16]
+ 1818 0014 14100BE5 		str	r1, [fp, #-20]
+  39:../main.c     **** 	while( *text != 0 )
+ 1819              		.loc 1 39 0
+ 1820 0018 090000EA 		b	.L2
+ 1821              	.L3:
+  40:../main.c     **** 	  *address++ = *text++;
+ 1822              		.loc 1 40 0
+ 1823 001c 10301BE5 		ldr	r3, [fp, #-16]
+ 1824 0020 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 1825 0024 14301BE5 		ldr	r3, [fp, #-20]
+ 1826 0028 0020C3E5 		strb	r2, [r3, #0]
+ 1827 002c 14301BE5 		ldr	r3, [fp, #-20]
+ 1828 0030 013083E2 		add	r3, r3, #1
+ 1829 0034 14300BE5 		str	r3, [fp, #-20]
+ 1830 0038 10301BE5 		ldr	r3, [fp, #-16]
+ 1831 003c 013083E2 		add	r3, r3, #1
+ 1832 0040 10300BE5 		str	r3, [fp, #-16]
+ 1833              	.L2:
+  39:../main.c     **** 	while( *text != 0 )
+ 1834              		.loc 1 39 0 discriminator 1
+ 1835 0044 10301BE5 		ldr	r3, [fp, #-16]
+ 1836 0048 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1837 004c 000053E3 		cmp	r3, #0
+ 1838 0050 F1FFFF1A 		bne	.L3
+  41:../main.c     **** }
+ 1839              		.loc 1 41 0
+ 1840 0054 0CD04BE2 		sub	sp, fp, #12
+ 1841 0058 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1842 005c 1EFF2FE1 		bx	lr
+ 1843              		.cfi_endproc
+ 1844              	.LFE0:
+ 1846              		.section	.rodata
+ 1847              		.align	2
+ 1848              	.LC0:
+ 1849 0000 49525120 		.ascii	"IRQ   \000"
+ 1849      202000
+ 1850              		.text
+ 1851              		.align	2
+ 1852              		.global	ISR_IRQ
+ 1854              	ISR_IRQ:
+ 1855              	.LFB1:
+  42:../main.c     **** 
+  43:../main.c     **** void ISR_IRQ(void)
+  44:../main.c     **** {
+ 1856              		.loc 1 44 0
+ 1857              		.cfi_startproc
+ 1858              		@ Interrupt Service Routine.
+ 1859              		@ args = 0, pretend = 0, frame = 0
+ 1860              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1861 0060 04C02DE5 		str	ip, [sp, #-4]!
+ 1862 0064 0DC0A0E1 		mov	ip, sp
+ 1863              	.LCFI2:
+ 1864              		.cfi_def_cfa_register 12
+ 1865 0068 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 1866 006c 04B04CE2 		sub	fp, ip, #4
+ 1867              		.cfi_offset 14, -8
+ 1868              		.cfi_offset 13, -12
+ 1869              		.cfi_offset 11, -16
+ 1870              		.cfi_offset 3, -20
+ 1871              		.cfi_offset 2, -24
+ 1872              		.cfi_offset 1, -28
+ 1873              		.cfi_offset 0, -32
+ 1874              	.LCFI3:
+ 1875              		.cfi_def_cfa 11, 4
+  45:../main.c     **** 	write("IRQ   ",Screen);
+ 1876              		.loc 1 45 0
+ 1877 0070 14009FE5 		ldr	r0, .L5
+ 1878 0074 14109FE5 		ldr	r1, .L5+4
+ 1879 0078 FEFFFFEB 		bl	write
+  46:../main.c     **** }
+ 1880              		.loc 1 46 0
+ 1881 007c 1CD04BE2 		sub	sp, fp, #28
+ 1882 0080 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 1883 0084 04C09DE4 		ldmfd	sp!, {ip}
+ 1884 0088 04F05EE2 		subs	pc, lr, #4
+ 1885              	.L6:
+ 1886              		.align	2
+ 1887              	.L5:
+ 1888 008c 00000000 		.word	.LC0
+ 1889 0090 00000000 		.word	Screen
+ 1890              		.cfi_endproc
+ 1891              	.LFE1:
+ 1893              		.section	.rodata
+ 1894 0007 00       		.align	2
+ 1895              	.LC1:
+ 1896 0008 556E6465 		.ascii	"Undef \000"
+ 1896      662000
+ 1897              		.text
+ 1898              		.align	2
+ 1899              		.global	ISR_Undef
+ 1901              	ISR_Undef:
+ 1902              	.LFB2:
+  47:../main.c     **** 
+  48:../main.c     **** void ISR_Undef(void)
+  49:../main.c     **** {
+ 1903              		.loc 1 49 0
+ 1904              		.cfi_startproc
+ 1905              		@ ARM Exception Handler.
+ 1906              		@ args = 0, pretend = 0, frame = 0
+ 1907              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1908 0094 04C02DE5 		str	ip, [sp, #-4]!
+ 1909 0098 0DC0A0E1 		mov	ip, sp
+ 1910              	.LCFI4:
+ 1911              		.cfi_def_cfa_register 12
+ 1912 009c 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 1913 00a0 04B04CE2 		sub	fp, ip, #4
+ 1914              		.cfi_offset 14, -8
+ 1915              		.cfi_offset 13, -12
+ 1916              		.cfi_offset 11, -16
+ 1917              		.cfi_offset 3, -20
+ 1918              		.cfi_offset 2, -24
+ 1919              		.cfi_offset 1, -28
+ 1920              		.cfi_offset 0, -32
+ 1921              	.LCFI5:
+ 1922              		.cfi_def_cfa 11, 4
+  50:../main.c     ****     write("Undef ",Screen);
+ 1923              		.loc 1 50 0
+ 1924 00a4 14009FE5 		ldr	r0, .L8
+ 1925 00a8 14109FE5 		ldr	r1, .L8+4
+ 1926 00ac FEFFFFEB 		bl	write
+  51:../main.c     **** }
+ 1927              		.loc 1 51 0
+ 1928 00b0 1CD04BE2 		sub	sp, fp, #28
+ 1929 00b4 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 1930 00b8 04C09DE4 		ldmfd	sp!, {ip}
+ 1931 00bc 0EF0B0E1 		movs	pc, lr
+ 1932              	.L9:
+ 1933              		.align	2
+ 1934              	.L8:
+ 1935 00c0 08000000 		.word	.LC1
+ 1936 00c4 00000000 		.word	Screen
+ 1937              		.cfi_endproc
+ 1938              	.LFE2:
+ 1940              		.section	.rodata
+ 1941 000f 00       		.align	2
+ 1942              	.LC2:
+ 1943 0010 53574920 		.ascii	"SWI   \000"
+ 1943      202000
+ 1944              		.text
+ 1945              		.align	2
+ 1946              		.global	ISR_SWI
+ 1948              	ISR_SWI:
+ 1949              	.LFB3:
+  52:../main.c     **** 
+  53:../main.c     **** 
+  54:../main.c     **** void ISR_SWI(void)
+  55:../main.c     **** {
+ 1950              		.loc 1 55 0
+ 1951              		.cfi_startproc
+ 1952              		@ ARM Exception Handler.
+ 1953              		@ args = 0, pretend = 0, frame = 0
+ 1954              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1955 00c8 04C02DE5 		str	ip, [sp, #-4]!
+ 1956 00cc 0DC0A0E1 		mov	ip, sp
+ 1957              	.LCFI6:
+ 1958              		.cfi_def_cfa_register 12
+ 1959 00d0 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 1960 00d4 04B04CE2 		sub	fp, ip, #4
+ 1961              		.cfi_offset 14, -8
+ 1962              		.cfi_offset 13, -12
+ 1963              		.cfi_offset 11, -16
+ 1964              		.cfi_offset 3, -20
+ 1965              		.cfi_offset 2, -24
+ 1966              		.cfi_offset 1, -28
+ 1967              		.cfi_offset 0, -32
+ 1968              	.LCFI7:
+ 1969              		.cfi_def_cfa 11, 4
+  56:../main.c     ****     write("SWI   ",Screen);
+ 1970              		.loc 1 56 0
+ 1971 00d8 14009FE5 		ldr	r0, .L11
+ 1972 00dc 14109FE5 		ldr	r1, .L11+4
+ 1973 00e0 FEFFFFEB 		bl	write
+  57:../main.c     **** }
+ 1974              		.loc 1 57 0
+ 1975 00e4 1CD04BE2 		sub	sp, fp, #28
+ 1976 00e8 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 1977 00ec 04C09DE4 		ldmfd	sp!, {ip}
+ 1978 00f0 0EF0B0E1 		movs	pc, lr
+ 1979              	.L12:
+ 1980              		.align	2
+ 1981              	.L11:
+ 1982 00f4 10000000 		.word	.LC2
+ 1983 00f8 00000000 		.word	Screen
+ 1984              		.cfi_endproc
+ 1985              	.LFE3:
+ 1987              		.section	.rodata
+ 1988 0017 00       		.align	2
+ 1989              	.LC3:
+ 1990 0018 5061626F 		.ascii	"Pabort\000"
+ 1990      727400
+ 1991              		.text
+ 1992              		.align	2
+ 1993              		.global	ISR_Pabort
+ 1995              	ISR_Pabort:
+ 1996              	.LFB4:
+  58:../main.c     **** 
+  59:../main.c     **** void ISR_Pabort(void)
+  60:../main.c     **** {
+ 1997              		.loc 1 60 0
+ 1998              		.cfi_startproc
+ 1999              		@ Interrupt Service Routine.
+ 2000              		@ args = 0, pretend = 0, frame = 0
+ 2001              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2002 00fc 04C02DE5 		str	ip, [sp, #-4]!
+ 2003 0100 0DC0A0E1 		mov	ip, sp
+ 2004              	.LCFI8:
+ 2005              		.cfi_def_cfa_register 12
+ 2006 0104 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2007 0108 04B04CE2 		sub	fp, ip, #4
+ 2008              		.cfi_offset 14, -8
+ 2009              		.cfi_offset 13, -12
+ 2010              		.cfi_offset 11, -16
+ 2011              		.cfi_offset 3, -20
+ 2012              		.cfi_offset 2, -24
+ 2013              		.cfi_offset 1, -28
+ 2014              		.cfi_offset 0, -32
+ 2015              	.LCFI9:
+ 2016              		.cfi_def_cfa 11, 4
+  61:../main.c     ****     write("Pabort",Screen);
+ 2017              		.loc 1 61 0
+ 2018 010c 14009FE5 		ldr	r0, .L14
+ 2019 0110 14109FE5 		ldr	r1, .L14+4
+ 2020 0114 FEFFFFEB 		bl	write
+  62:../main.c     **** }
+ 2021              		.loc 1 62 0
+ 2022 0118 1CD04BE2 		sub	sp, fp, #28
+ 2023 011c 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2024 0120 04C09DE4 		ldmfd	sp!, {ip}
+ 2025 0124 04F05EE2 		subs	pc, lr, #4
+ 2026              	.L15:
+ 2027              		.align	2
+ 2028              	.L14:
+ 2029 0128 18000000 		.word	.LC3
+ 2030 012c 00000000 		.word	Screen
+ 2031              		.cfi_endproc
+ 2032              	.LFE4:
+ 2034              		.section	.rodata
+ 2035 001f 00       		.align	2
+ 2036              	.LC4:
+ 2037 0020 4461626F 		.ascii	"Dabort\000"
+ 2037      727400
+ 2038 0027 00       		.text
+ 2039              		.align	2
+ 2040              		.global	ISR_Dabort
+ 2042              	ISR_Dabort:
+ 2043              	.LFB5:
+  63:../main.c     **** 
+  64:../main.c     **** void ISR_Dabort(void)
+  65:../main.c     **** {
+ 2044              		.loc 1 65 0
+ 2045              		.cfi_startproc
+ 2046              		@ Interrupt Service Routine.
+ 2047              		@ args = 0, pretend = 0, frame = 0
+ 2048              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2049 0130 04C02DE5 		str	ip, [sp, #-4]!
+ 2050 0134 0DC0A0E1 		mov	ip, sp
+ 2051              	.LCFI10:
+ 2052              		.cfi_def_cfa_register 12
+ 2053 0138 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2054 013c 04B04CE2 		sub	fp, ip, #4
+ 2055              		.cfi_offset 14, -8
+ 2056              		.cfi_offset 13, -12
+ 2057              		.cfi_offset 11, -16
+ 2058              		.cfi_offset 3, -20
+ 2059              		.cfi_offset 2, -24
+ 2060              		.cfi_offset 1, -28
+ 2061              		.cfi_offset 0, -32
+ 2062              	.LCFI11:
+ 2063              		.cfi_def_cfa 11, 4
+  66:../main.c     ****     write("Dabort",Screen);
+ 2064              		.loc 1 66 0
+ 2065 0140 14009FE5 		ldr	r0, .L17
+ 2066 0144 14109FE5 		ldr	r1, .L17+4
+ 2067 0148 FEFFFFEB 		bl	write
+  67:../main.c     **** }
+ 2068              		.loc 1 67 0
+ 2069 014c 1CD04BE2 		sub	sp, fp, #28
+ 2070 0150 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2071 0154 04C09DE4 		ldmfd	sp!, {ip}
+ 2072 0158 04F05EE2 		subs	pc, lr, #4
+ 2073              	.L18:
+ 2074              		.align	2
+ 2075              	.L17:
+ 2076 015c 20000000 		.word	.LC4
+ 2077 0160 00000000 		.word	Screen
+ 2078              		.cfi_endproc
+ 2079              	.LFE5:
+ 2081              		.align	2
+ 2082              		.global	intcont_init
+ 2084              	intcont_init:
+ 2085              	.LFB6:
+  68:../main.c     **** 
+  69:../main.c     **** 
+  70:../main.c     **** // Configuracion por defecto del controlador de interrupciones:
+  71:../main.c     **** // - Modo vectorizado, IRQ y FIQ habilitadas
+  72:../main.c     **** // - Configurar todas las interrupciones por IRQ
+  73:../main.c     **** // - Borrar pendientes por IRQ y FIQ
+  74:../main.c     **** // - Borrar EXTINPND
+  75:../main.c     **** // - Enmascarar todas las líneas, pero activar BIT_GLOBAL
+  76:../main.c     **** void intcont_init(void){
+ 2086              		.loc 1 76 0
+ 2087              		.cfi_startproc
+ 2088              		@ Function supports interworking.
+ 2089              		@ args = 0, pretend = 0, frame = 0
+ 2090              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2091 0164 0DC0A0E1 		mov	ip, sp
+ 2092              	.LCFI12:
+ 2093              		.cfi_def_cfa_register 12
+ 2094 0168 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2095 016c 04B04CE2 		sub	fp, ip, #4
+ 2096              		.cfi_offset 14, -8
+ 2097              		.cfi_offset 13, -12
+ 2098              		.cfi_offset 11, -16
+ 2099              	.LCFI13:
+ 2100              		.cfi_def_cfa 11, 4
+  77:../main.c     **** 	rINTCON = 0x0;
+ 2101              		.loc 1 77 0
+ 2102 0170 1E36A0E3 		mov	r3, #31457280
+ 2103 0174 0020A0E3 		mov	r2, #0
+ 2104 0178 002083E5 		str	r2, [r3, #0]
+  78:../main.c     **** 	rINTMOD = 0x0;
+ 2105              		.loc 1 78 0
+ 2106 017c 34309FE5 		ldr	r3, .L20
+ 2107 0180 0020A0E3 		mov	r2, #0
+ 2108 0184 002083E5 		str	r2, [r3, #0]
+  79:../main.c     **** 	rI_ISPC = 0xfffff;
+ 2109              		.loc 1 79 0
+ 2110 0188 2C309FE5 		ldr	r3, .L20+4
+ 2111 018c 2C209FE5 		ldr	r2, .L20+8
+ 2112 0190 002083E5 		str	r2, [r3, #0]
+  80:../main.c     **** 	rEXTINTPND =  0xf;
+ 2113              		.loc 1 80 0
+ 2114 0194 28309FE5 		ldr	r3, .L20+12
+ 2115 0198 0F20A0E3 		mov	r2, #15
+ 2116 019c 002083E5 		str	r2, [r3, #0]
+  81:../main.c     **** 	rINTMSK = 0x3ffffff;
+ 2117              		.loc 1 81 0
+ 2118 01a0 20309FE5 		ldr	r3, .L20+16
+ 2119 01a4 3F23E0E3 		mvn	r2, #-67108864
+ 2120 01a8 002083E5 		str	r2, [r3, #0]
+  82:../main.c     **** }
+ 2121              		.loc 1 82 0
+ 2122 01ac 0CD04BE2 		sub	sp, fp, #12
+ 2123 01b0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2124 01b4 1EFF2FE1 		bx	lr
+ 2125              	.L21:
+ 2126              		.align	2
+ 2127              	.L20:
+ 2128 01b8 0800E001 		.word	31457288
+ 2129 01bc 2400E001 		.word	31457316
+ 2130 01c0 FFFF0F00 		.word	1048575
+ 2131 01c4 5400D201 		.word	30539860
+ 2132 01c8 0C00E001 		.word	31457292
+ 2133              		.cfi_endproc
+ 2134              	.LFE6:
+ 2136              		.align	2
+ 2137              		.global	main
+ 2139              	main:
+ 2140              	.LFB7:
+  83:../main.c     **** 
+  84:../main.c     **** 
+  85:../main.c     **** int main(void){
+ 2141              		.loc 1 85 0
+ 2142              		.cfi_startproc
+ 2143              		@ Function supports interworking.
+ 2144              		@ args = 0, pretend = 0, frame = 0
+ 2145              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2146 01cc 0DC0A0E1 		mov	ip, sp
+ 2147              	.LCFI14:
+ 2148              		.cfi_def_cfa_register 12
+ 2149 01d0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2150 01d4 04B04CE2 		sub	fp, ip, #4
+ 2151              		.cfi_offset 14, -8
+ 2152              		.cfi_offset 13, -12
+ 2153              		.cfi_offset 11, -16
+ 2154              	.LCFI15:
+ 2155              		.cfi_def_cfa 11, 4
+  86:../main.c     **** 
+  87:../main.c     **** 	intcont_init();
+ 2156              		.loc 1 87 0
+ 2157 01d8 FEFFFFEB 		bl	intcont_init
+  88:../main.c     **** 	leds_init();
+ 2158              		.loc 1 88 0
+ 2159 01dc FEFFFFEB 		bl	leds_init
+  89:../main.c     **** 	button_init();
+ 2160              		.loc 1 89 0
+ 2161 01e0 FEFFFFEB 		bl	button_init
+  90:../main.c     **** 	Delay(0);
+ 2162              		.loc 1 90 0
+ 2163 01e4 0000A0E3 		mov	r0, #0
+ 2164 01e8 FEFFFFEB 		bl	Delay
+  91:../main.c     ****     DoUndef();
+ 2165              		.loc 1 91 0
+ 2166 01ec FEFFFFEB 		bl	DoUndef
+  92:../main.c     ****     DoSWI();
+ 2167              		.loc 1 92 0
+ 2168 01f0 FEFFFFEB 		bl	DoSWI
+  93:../main.c     ****     DoDabort();
+ 2169              		.loc 1 93 0
+ 2170 01f4 FEFFFFEB 		bl	DoDabort
+ 2171              	.L23:
+  94:../main.c     **** 
+  95:../main.c     **** 	while(1);
+ 2172              		.loc 1 95 0 discriminator 1
+ 2173 01f8 FEFFFFEA 		b	.L23
+ 2174              		.cfi_endproc
+ 2175              	.LFE7:
+ 2177              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+                            *COM*:00000400 Screen
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1796   .text:00000000 $a
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1799   .text:00000000 write
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1847   .rodata:00000000 $d
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1854   .text:00000060 ISR_IRQ
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1888   .text:0000008c $d
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1898   .text:00000094 $a
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1901   .text:00000094 ISR_Undef
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1935   .text:000000c0 $d
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1945   .text:000000c8 $a
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1948   .text:000000c8 ISR_SWI
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1982   .text:000000f4 $d
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1992   .text:000000fc $a
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:1995   .text:000000fc ISR_Pabort
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2029   .text:00000128 $d
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2039   .text:00000130 $a
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2042   .text:00000130 ISR_Dabort
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2076   .text:0000015c $d
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2081   .text:00000164 $a
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2084   .text:00000164 intcont_init
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2128   .text:000001b8 $d
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2136   .text:000001cc $a
+C:\Users\JONATH~1\AppData\Local\Temp\cch4yQyA.s:2139   .text:000001cc main
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+leds_init
+button_init
+Delay
+DoUndef
+DoSWI
+DoDabort
